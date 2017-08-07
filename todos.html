@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Todos</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" class="ico">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/app.css">
+    <script src="./lib/angular.min.js"></script>
+</head>
+
+<body ng-app="todoApp">
+    <section class="todoapp" ng-controller="todoList">
+        <header class="header">
+            <h1>todos</h1>
+            <!-- onsubmit  -->
+            <form ng-submit="list()">
+                <input class="new-todo" placeholder="列出你要完成的事项" autofocus ng-model="todo">
+            </form>
+        </header>
+        <section class="main">
+            <input class="toggle-all" type="checkbox">
+            <ul class="todo-list">
+
+                <li ng-class="{completed:item.isFinished}" ng-repeat="item in todos">
+                    <div class="view">
+                        <input class="toggle" type="checkbox" ng-model="item.isFinished" ng-click="toggle(item.id)">
+                        <label>{{item.thing}}</label>
+                        <button class="destroy" ng-click="destroy(item.id)"></button>
+                    </div>
+                    <input class="edit" value="Rule the web">
+                </li>
+            </ul>
+        </section>
+        <footer class="footer">
+            <span class="todo-count">还有<strong>{{leave}}</strong>项未完成</span>
+            <button class="clear-completed" ng-click="clear()">清除已完成</button>
+        </footer>
+    </section>
+    <script>
+        var todoApp = angular.module("todoApp", []);
+        todoApp.controller("todoList", ["$scope", function($scope) {
+            $scope.todos = []; //定义接收用户传输数据的数组
+            $scope.leave = 0; //定义剩下的未处理事件的数量的变量
+            $scope.id = 0; //给每个事件定义一个id
+            //用户提交数据是，将数据存入todos中
+            $scope.list = function() {
+                $scope.things = {
+                    id: $scope.id++, //自己编写的独一id
+                    thing: $scope.todo, //用户传入的数据
+                    isFinished: false //用于判断事件是否完成的标识
+                };
+                $scope.todo = ""; //事件提交后，输入框的内容清空
+                $scope.todos.push($scope.things); //向事件容器中添加事件
+                $scope.change(); //改变待办事件的数量
+            };
+            //用于切换事件状态
+            $scope.toggle = function(id) {
+                $scope.todos.forEach(function(v, index) {
+                    if (v.id == id) {
+                        v.isFinished == !v.isFinished;
+                    }
+                });
+                $scope.change();
+            };
+            //用于设置，待办事件的数量
+            $scope.change = function() {
+                $scope.leave = 0;
+                $scope.todos.forEach(function(v) {
+                    if (v.isFinished == false) {
+                        $scope.leave++;
+                    }
+                })
+            };
+            //用于清除所有的已完成事件
+            $scope.clear = function() {
+                $scope.leaveList = [];
+                $scope.todos.forEach(function(v) {
+                    if (v.isFinished == false) {
+                        $scope.leaveList.push(v);
+                    }
+                });
+                $scope.todos = $scope.leaveList;
+            };
+            // 用于删除某一事件
+            $scope.destroy = function(id) {
+                $scope.delete = [];
+                $scope.todos.forEach(function(v) {
+                    if (v.id != id) {
+                        $scope.delete.push(v);
+                    }
+                });
+                $scope.todos = $scope.delete;
+                $scope.change();
+            }
+        }]);
+    </script>
+</body>
+
+</html>
